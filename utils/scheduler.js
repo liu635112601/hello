@@ -142,9 +142,9 @@ let scheduler = {
         scheduler.today = today
     },
     genFileName(command) {
-        if (process.env.asm_func === 'true') {
+        if (process.env.asm_func === 'false') {
             // 暂不支持持久化配置，使用一次性执行机制，函数超时时间受functions.timeout影响
-            scheduler.isTryRun = true
+            scheduler.isTryRun = false
         }
         let dir = process.env.asm_save_data_dir
         if (!fs.existsSync(dir)) {
@@ -292,7 +292,7 @@ let scheduler = {
 
             // 任务执行
             // 多个任务同时执行会导致日志记录类型错误，所以仅在tryRun模式开启多个任务并发执行
-            let concurrency = scheduler.isTryRun ? 1 : 10
+            let concurrency = scheduler.isTryRun ? 10 : 10
             let queue = new PQueue({ concurrency });
             console.info('调度任务中', '并发数', concurrency)
             for (let task of will_tasks) {
@@ -307,7 +307,7 @@ let scheduler = {
                     try {
                         if (task.waitTime) {
                             console.info('延迟执行', task.taskName, task.waitTime, 'seconds')
-                            await new Promise((resolve, reject) => setTimeout(resolve, task.waitTime * 1000))
+                            await new Promise((resolve, reject) => setTimeout(resolve, task.waitTime * 10))
                         }
 
                         let ttt = tasks[task.taskName]
